@@ -14,15 +14,14 @@ var app = new Vue({
       ],
     users:[],
     singleProjet:[],
-      test:[{
-      name:"zaeqsfm,qlmsfkq"
-      }],
+      commits:[],
     nameProjet:'',
     listeRepos: true,
     singleRepos: false,
   },
 
   mounted () {
+
       fetch("https://api.github.com/search/repositories?q=github-ynov-vue",{
           headers: {
               "Authorization": "Basic bWFlbDYxOmE3dzFzNWU5YzM="
@@ -32,36 +31,45 @@ var app = new Vue({
           .then(response =>response.json())
           .then((data) => {
               this.users = data.items
+
           })
+
 
   },
 methods:{
     selectUser() {
-      vm = this;
-      // console.log(this.userSelect.url+"/commits");
+        this.commits = []
+        console.log(this.userSelect.url + "/commits");
         this.listeRepos = false;
         this.singleRepos = true;
 
-        console.log("test ultime" +vm.test)
-        fetch(this.userSelect.url+"/commits",{
+        fetch(this.userSelect.url + "/commits", {
             headers: {
                 "Authorization": "Basic bWFlbDYxOmE3dzFzNWU5YzM="
             },
             method: "GET"
         })
-            // .then(response => console.log(response.json()))
+            .then(response => response.json())
 
-            // .then((data)=>console.log(data))
-            .then((data) =>   {
-              console.log(vm.test)
-                vm.test = data
-                console.log(data)
+            .then((data) => {
+
+                data.forEach((proj) => {
+                    this.commits.push(proj)
+                })
             })
-            .catch((err)=>console.error(err))
 
-        console.log(vm.test);
+        fetch(this.userSelect.url + "/master/README.md", {
+            headers: {
+                "Authorization": "Basic bWFlbDYxOmE3dzFzNWU5YzM="
+            },
+            method: "GET"
+        })
+
     }
+
+
 }
+
 
 
 });

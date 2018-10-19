@@ -37,7 +37,14 @@
             </ul>
         </div>
         <div v-if="singleRepos"> {{userSelect.owner.login}} {{userSelect.clone_url}}
-        {{singleProjet}}
+        <!--{{commits}}-->
+            <ul id="listCommits">
+                <li v-for="commit in commits">
+                    {{commit.commit.message}} : {{commit.commit.committer.date}}
+                </li>
+
+
+            </ul>
         </div>
 
 
