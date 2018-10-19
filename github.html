@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+<meta  charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+</head>
+<body>
+
+<div id="app">
+    <div class="container">
+
+        <h1>Github </h1>
+
+
+
+        <select v-model="projetSelect" >
+            <option v-for="projet in projets" :value="projet.name"> {{projet.name}}</option>
+        </select>
+
+
+        <!--{{ projets }}-->
+
+        <select v-model="userSelect" @change="selectUser()" >
+            <option  v-for="user in users"  :value="user">{{user.owner.login}}</option>
+        </select>
+        <div  v-if="listeRepos" >
+            <ul id="listeRepo">
+                <li v-for="user in users">
+                    {{user.owner.login }} || {{user.clone_url }}
+                </li>
+
+
+            </ul>
+        </div>
+        <div v-if="singleRepos"> {{userSelect.owner.login}} {{userSelect.clone_url}}
+        {{singleProjet}}
+        </div>
+
+
+
+
+
+    </div>
+
+</div>
+<script src="index.js">
+
+
+</script>
+</body>
+</html>
