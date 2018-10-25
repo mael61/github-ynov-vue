@@ -1,43 +1,45 @@
 <template>
     <div class="container">
+
+
         <div class="row">
             <select v-model="projetSelect">
                 <option v-for="projet in projets" :value="projet.name"> {{projet.name}}</option>
             </select>
-            <datepicker placeholder="Select Date Begin" v-model="dateBegin"    @closed="selectUser()" :format="dateFormat"></datepicker>
-            <datepicker placeholder="Select Date End" v-model="dateEnd"   @closed="selectUser()" :format="dateFormat" ></datepicker>
+            <datepicker placeholder="Select Date Begin" v-model="dateBegin" @closed="constuitRepertoire()"
+                        :format="dateFormat"></datepicker>
+            <datepicker placeholder="Select Date End" v-model="dateEnd" @closed="constuitRepertoire()"
+                        :format="dateFormat"></datepicker>
             <div>
-                <multiselect v-model="userSelect" :options="users" :multiple="true" :close-on-select="false"
-                             :clear-on-select="false" :preserve-search="true" @close="selectUser()"
+                <multiselect v-model="reposSelect" :options="repos" :multiple="true" :close-on-select="false"
+                             :clear-on-select="false" :preserve-search="true" @close="constuitRepertoire()"
                              placeholder="Pick some" label="full_name" track-by="full_name" :preselect-first="true">
-                    <template slot="selection" slot-scope="{ values, search, isOpen }"><span class="multiselect__single"
-                                                                                             v-if="values.length &amp;&amp; !isOpen">{{ values.length }} options selected</span>
+                    <template slot="selection" slot-scope="{ values, search, isOpen }"><span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">{{ values.length }} options selected</span>
                     </template>
                 </multiselect>
             </div>
 
         </div>
+
         <div v-if="listeRepos">
-            <div class="card" v-for="user in users">
-                {{user.owner.login }} || {{user.clone_url }}
+            <div class="card" v-for="repo in repos">
+                {{repo.owner.login }} || {{repo.clone_url }}
             </div>
         </div>
-        <div v-if="singleRepos">
-            {{userSelect.length}}
-            <div class="card" v-for="readme in readmes">
-                <div class="card-body">
-                    {{readme}}
-                </div>
+        <div class="card" v-for="repo in allRepertoire" v-if="singleRepos">
+
+            <h1>{{repo.description[0].full_name}}</h1>
+            <br>
+            <p>{{repo.readme}}</p>
+            <br>
+            <div class="card-body" v-for="commit in repo.commits">
+                {{commit.commit.committer.date}} {{commit.commit.message}}
             </div>
-            <div class="card" v-for="commit in commits">
-                <div class="card-body">
-                    <h4 class="card-title"> {{commit.commit.author.name}} </h4>
-                    <p class="card-text"> {{commit.commit.message}}.</p>
-                    <p> {{commit.commit.author.date}}</p>
-                </div>
-            </div>
+
         </div>
     </div>
+
+
 </template>
 
 <script>
@@ -53,96 +55,96 @@
 
     export default {
         name: 'HelloWorld',
-        components: {Multiselect, axios, BootstrapVue,Datepicker,moment},
+        components: {Multiselect, axios, BootstrapVue, Datepicker, moment},
         data() {
             return {
-                dateBegin:"",
-                dateEnd:"",
+                dateBegin: "",
+                dateEnd: "",
                 projetSelect: "",
                 info: null,
-                userSelect: [],
+                reposSelect: [],
                 projet1: 'github-ynov-vue',
                 projets: [{name: 'github-ynov-vue'}],
                 test: [],
-                users: [],
+                repos: [],
                 usersSelected: [],
                 singleProjet: [],
                 commits: [],
+                repoSelectCommit: [],
                 nameProjet: '',
                 listeRepos: true,
                 singleRepos: false,
                 value: [],
+                tempReadme: "",
                 readmes: [],
-                datesverif:'',
-
-
+                datesverif: '',
+                projetSelected: [],
+                allRepertoire: [],
             }
         },
+        beforeMount() {
+            this.getRepertoire();
+        },
         mounted() {
-            axios.get(`https://api.github.com/search/repositories?q=github-ynov-vue`, {
-                headers: {
-                    "Authorization": "Basic bWFlbDYxOmE3dzFzNWU5YzM="
-                }
-            })
-                .then(res => {
-                    console.log(res)
-                    this.users = res.data.items
-                })
-
-
         },
         methods: {
+            getRepertoire() {
+                axios.get(`https://api.github.com/search/repositories?q=github-ynov-vue`, {
+                    headers: {
+                        "Authorization": "Basic bWFlbDYxOmE3dzFzNWU5YzM="
+                    }
+                })
+                    .then(res => {
+                        this.repos = res.data.items
+                    })
 
+
+            },
             dateFormat(date) {
                 return moment(date).format('YYYY-MM-D');
             },
+            constuitRepertoire() {
+                this.allRepertoire = []
+                this.reposSelect.forEach(repertoire => {
 
-            selectUser() {
-                var vm = this;
-                console.log(vm.userSelect.length)
+                    let monRepertoire = {
+                        description: [],
+                        commits: [],
+                        readme: ''
+                    }
 
-                vm.readmes = []
-                vm.commits = []
-                vm.userSelect.forEach((user) => {
-                    axios.get(user.url + "/commits", {
+                    axios.get("https://raw.githubusercontent.com/" + repertoire.full_name + "/master/README.md", {responseType: 'text/plain'})
+                        .then(res => {
+                            // console.log(res)
+                            // vm.projetSelected.readmes.push(res.data)
+                            monRepertoire.readme = res.data;
+                        })
+                    monRepertoire.description.push(repertoire)
+
+                    axios.get(repertoire.url + "/commits", {
                         headers: {
                             "Authorization": "Basic bWFlbDYxOmE3dzFzNWU5YzM="
                         }
                     })
                         .then(res => {
-                            console.log(res)
-                            res.data.forEach((commit) => {
-                                console.log( this.dateBegin)
-                                console.log( this.dateEnd)
-                                // console.log( commit.commit.author.date)
-                                vm.datesverif = new Date(commit.commit.author.date)
-                                console.log(vm.datesverif)
-                                if( vm.datesverif >= this.dateBegin && vm.datesverif <= this.dateEnd){
-                                    console.log("insert")
-                                    vm.commits.push(commit)
+                            res.data.forEach(commit => {
+                                this.datesverif = new Date(commit.commit.author.date)
+                                if (this.datesverif >= this.dateBegin && this.datesverif <= this.dateEnd) {
+                                    monRepertoire.commits.push(commit)
+                                    console.log(monRepertoire)
                                 }
 
                             })
-                            console.log("https://raw.githubusercontent.com/" + user.full_name + "/master/README.md")
-                            axios.get("https://raw.githubusercontent.com/" + user.full_name + "/master/README.md", {responseType: 'text/plain'})
-                                .then(res => {
-                                    console.log(res)
-                                    vm.readmes.push(res.data)
-                                })
                         })
+                    this.allRepertoire.push(monRepertoire)
+
                 })
-
-
-                // console.log(this.userSelect.url + "/commits");
                 this.listeRepos = false;
                 this.singleRepos = true;
-                if (this.userSelect.length == 0) {
+                if (this.reposSelect.length == 0) {
                     this.listeRepos = true;
                 }
-
-            }
-
-
+            },
         }
     }
 </script>
