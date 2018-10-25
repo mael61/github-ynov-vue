@@ -97,7 +97,6 @@
                 return moment(date).format('YYYY-MM-D');
             },
 
-
             selectUser() {
                 var vm = this;
                 console.log(vm.userSelect.length)
