@@ -15,7 +15,7 @@ import Datepicker from 'vuejs-datepicker';
 export default {
   name: 'App',
   components: {
-    HelloWorld,
+      HelloWorld,
       Multiselect,
       axios,
       Datepicker,
