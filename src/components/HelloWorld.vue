@@ -1,16 +1,22 @@
 <template>
     <div class="container">
-
-
-        <div class="row">
-            <select v-model="projetSelect">
-                <option v-for="projet in projets" :value="projet.name"> {{projet.name}}</option>
-            </select>
+        <nav class="navbar navbar-light navbar-expand-md bg-light justify-content-center">
+        <div class="row" >
+            <div  class="col" >
+                <select v-model="projetSelect" class="form-control">
+                    <option v-for="projet in projets" :value="projet.name"> {{projet.name}}</option>
+                </select>
+            </div>
+            <div  class="col">
             <datepicker placeholder="Select Date Begin" v-model="dateBegin" @closed="constuitRepertoire()"
                         :format="dateFormat"></datepicker>
-            <datepicker placeholder="Select Date End" v-model="dateEnd" @closed="constuitRepertoire()"
-                        :format="dateFormat"></datepicker>
-            <div>
+            </div>
+            <div  class="col">
+                <datepicker placeholder="Select Date End" v-model="dateEnd" @closed="constuitRepertoire()"
+                            :format="dateFormat"></datepicker>
+            </div>
+
+            <div  class="col">
                 <multiselect v-model="reposSelect" :options="repos" :multiple="true" :close-on-select="false"
                              :clear-on-select="false" :preserve-search="true" @close="constuitRepertoire()"
                              placeholder="Pick some" label="full_name" track-by="full_name" :preselect-first="true">
@@ -20,20 +26,27 @@
             </div>
 
         </div>
+        </nav>
+
 
         <div v-if="listeRepos">
+
             <div class="card" v-for="repo in repos">
-                {{repo.owner.login }} || {{repo.clone_url }}
+                <h5 class="card-title"> {{repo.owner.login }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted"> <a :href="repo.clone_url ">{{repo.clone_url }}</a> </h6>
+
             </div>
         </div>
         <div class="card" v-for="repo in allRepertoire" v-if="singleRepos">
+            <div class="bg-light text-dark">
+            <h5 class="card-title">{{repo.description[0].full_name}}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">Readme</h6>
+            <h6  class="card-subtitle mb-2 text-muted"><code>{{repo.readme}}</code></h6>
+            </div>
+            <div class="card" v-for="commit in repo.commits">
 
-            <h1>{{repo.description[0].full_name}}</h1>
-            <br>
-            <p>{{repo.readme}}</p>
-            <br>
-            <div class="card-body" v-for="commit in repo.commits">
-                {{commit.commit.committer.date}} {{commit.commit.message}}
+                {{commit.commit.committer.date}}
+                <p>{{commit.commit.message}}</p>
             </div>
 
         </div>
@@ -58,12 +71,12 @@
         components: {Multiselect, axios, BootstrapVue, Datepicker, moment},
         data() {
             return {
-                dateBegin: "",
-                dateEnd: "",
+                dateBegin: "select date begin",
+                dateEnd: "select date end",
                 projetSelect: "",
                 info: null,
                 reposSelect: [],
-                projet1: 'github-ynov-vue',
+                projetSelect: 'github-ynov-vue',
                 projets: [{name: 'github-ynov-vue'}],
                 test: [],
                 repos: [],
@@ -97,8 +110,6 @@
                     .then(res => {
                         this.repos = res.data.items
                     })
-
-
             },
             dateFormat(date) {
                 return moment(date).format('YYYY-MM-D');
