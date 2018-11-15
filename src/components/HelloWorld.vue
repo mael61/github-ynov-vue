@@ -2,21 +2,21 @@
     <div class="container">
         <nav class="navbar navbar-light navbar-expand-md bg-light justify-content-center">
         <div class="row" >
-            <div  class="col" >
+            <div  class="col-sm" >
                 <select v-model="projetSelect" class="form-control">
                     <option v-for="projet in projets" :value="projet.name"> {{projet.name}}</option>
                 </select>
             </div>
-            <div  class="col">
+            <div  class="col-sm">
             <datepicker placeholder="Select Date Begin" v-model="dateBegin" @closed="constuitRepertoire()"
                         :format="dateFormat"></datepicker>
             </div>
-            <div  class="col">
+            <div  class="col-sm">
                 <datepicker placeholder="Select Date End" v-model="dateEnd" @closed="constuitRepertoire()"
                             :format="dateFormat"></datepicker>
             </div>
 
-            <div  class="col">
+            <div  class="col-sm">
                 <multiselect v-model="reposSelect" :options="repos" :multiple="true" :close-on-select="false"
                              :clear-on-select="false" :preserve-search="true" @close="constuitRepertoire()"
                              placeholder="Pick some" label="full_name" track-by="full_name" :preselect-first="true">
